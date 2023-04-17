@@ -8,10 +8,7 @@ class App extends React.Component {
   constructor(props){
     super(props);
     this.state = { // item 리스트를 state에서 관리
-      items: [
-        {id:0, title: "Hello World 1", done:true},  // 가상 데이터를 넣어서 테스트
-        {id:1, title: "Hello World 2", done:false}, // 나중에는 백엔드에서 데이터를 얻어올 예정
-        {id:2, title: "Hello World 3", done:true}]
+      items: []
     };
   }
 
@@ -23,13 +20,26 @@ class App extends React.Component {
     this.setState({items:thisItems});
     console.log("items : ",this.state.items);
   }
+
+  delete = (item) => {
+    console.log("delete called"); //test
+    // state에 있는 item 가져오기
+    const thisItems = this.state.items;
+    console.log("Before Update Items : ", this.state.items)
+    // 제거하기
+    const newItems = thisItems.filter(e => e.id !== item.id);
+    // 다시 state에 넣기
+    this.setState({items:newItems}, () => {
+      console.log("Update Items : ", this.state.items)
+    });
+  }
   
   render() {
     var todoItems = this.state.items.length > 0 && (
       <Paper style={{margin:16}}>
         <List>
           {this.state.items.map((item,idx) => (
-            <Todo item={item} key={item.id} />
+            <Todo item={item} key={item.id} delete={this.delete}/>
           ))}
         </List>
       </Paper>
