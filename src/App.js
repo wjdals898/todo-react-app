@@ -3,6 +3,7 @@ import React from 'react';
 import Todo from './Todo';
 import AddTodo from "./AddTodo.js"
 import { Container, List, Paper } from '@material-ui/core';
+import {call} from "./service/ApiService";
 
 class App extends React.Component {
   constructor(props){
@@ -12,34 +13,40 @@ class App extends React.Component {
     };
   }
 
-  add = (item) => {
-    const thisItems = this.state.items;
-    item.id = "ID-"+thisItems.length;
-    item.done = false;
-    thisItems.push(item);
-    this.setState({items:thisItems});
-    console.log("items : ",this.state.items);
+  componentDidMount() {
+    call("/todo", "GET", null).then((response) => 
+      this.setState({items:response.data})
+      );
   }
 
+  add = (item) => {
+    call("/todo", "POST", item).then((response) =>
+      this.setState({items:response.data})
+    );
+  };
+
   delete = (item) => {
-    console.log("delete called"); //test
-    // state에 있는 item 가져오기
-    const thisItems = this.state.items;
-    console.log("Before Update Items : ", this.state.items)
-    // 제거하기
-    const newItems = thisItems.filter(e => e.id !== item.id);
-    // 다시 state에 넣기
-    this.setState({items:newItems}, () => {
-      console.log("Update Items : ", this.state.items)
-    });
-  }
+    call("/todo", "DELETE", item).then((response) =>
+      this.setState({items:response.data})
+    );
+  };
+
+  update = (item) => {
+    call("/todo", "PUT", item).then((response) =>
+      this.setState({items:response.data})
+    );
+  };
   
   render() {
     var todoItems = this.state.items.length > 0 && (
       <Paper style={{margin:16}}>
         <List>
           {this.state.items.map((item,idx) => (
-            <Todo item={item} key={item.id} delete={this.delete}/>
+            <Todo 
+              item={item} 
+              key={item.id} 
+              delete={this.delete}
+              update={this.update}/>
           ))}
         </List>
       </Paper>
