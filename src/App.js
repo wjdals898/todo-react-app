@@ -2,20 +2,21 @@ import './App.css';
 import React from 'react';
 import Todo from './Todo';
 import AddTodo from "./AddTodo.js"
-import { Container, List, Paper } from '@material-ui/core';
-import {call} from "./service/ApiService";
+import { Container, List, Paper, Grid, Button, AppBar, Toolbar, Typography, } from '@material-ui/core';
+import {call, signout} from "./service/ApiService";
 
 class App extends React.Component {
   constructor(props){
     super(props);
     this.state = { // item 리스트를 state에서 관리
-      items: []
+      items: [],
+      loading: true,
     };
   }
 
   componentDidMount() {
     call("/todo", "GET", null).then((response) => 
-      this.setState({items:response.data})
+      this.setState({items:response.data, loading: false})
       );
   }
 
@@ -52,16 +53,42 @@ class App extends React.Component {
       </Paper>
     );
 
-    return (
-      <div className="App">
-        {/*<Todo item={this.state.items}/>  부모가 자식을 생성할 때 정보를 줄 수 있음 */}
-        {/* <Todo> 컴포넌트 여러 개 */}
+    var navigationBar = (
+      <AppBar position="static">
+        <Toolbar>
+          <Grid justifyContent="space-between" container>
+            <Grid item>
+              <Typography variant="h6">오늘의 할일</Typography>
+            </Grid>
+            <Grid>
+              <Button color="inherit" onClick={signout}>
+                로그아웃
+              </Button>
+            </Grid>
+          </Grid>
+        </Toolbar>
+      </AppBar>
+    );
+
+    var todoListPage = (
+      <div>
+        {navigationBar}
         <Container maxWidth="md">
           <AddTodo add={this.add}/>
           <div className="TodoList">{todoItems}</div>
         </Container>
       </div>
     );
+
+    var loadingPage = <h1>로딩중...</h1>;
+
+    var content = loadingPage;
+
+    if (!this.state.loading) {
+      content = todoListPage;
+    }
+
+    return <div className="App">{content}</div>;
   }
 }
 
